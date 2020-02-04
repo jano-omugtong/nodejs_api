@@ -2,13 +2,17 @@ const express = require('express');
 const app = express();
 const morgan = require('morgan'); // for logging routes
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const userRoutes = require('./api/routes/users');
+
+mongoose.connect('mongodb://localhost/nodejs_api');
 
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
+// for CORS errors
 app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header(

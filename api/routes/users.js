@@ -1,51 +1,32 @@
 const express = require('express');
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
-    res.status(200).json({
-        message: 'Read all users'
-    });
-});
+const userService = require('../services/users');
 
-router.post('/', (req, res, next) => {
-    const user = {
-        email: req.body.email,
-        last_name: req.body.last_name,
-        first_name: req.body.first_name
-    }
-    res.status(200).json({
-        message: 'Create user',
-        user: user
-    });
-});
+router.get('/', getAllUsers);
+router.post('/', createUser);
+router.get('/:userId', getUser);
+router.patch('/:userId', updateUser);
+router.delete('/:userId', deleteUser);
 
-router.get('/:userId', (req, res, next) => {
-    // const id = req.params.userId;
-    // if (id === 'special') {
-    //     res.status(200).json({
-    //         message: 'Its special',
-    //         id: id
-    //     }); 
-    // } else {
-    //     res.status(200).json({
-    //         message: 'You passed id'
-    //     });
-    // }
-    res.status(200).json({
-        message: 'Read user'
-    });
-});
+function getAllUsers(req, res, next){
+    userService.getAllUsers(req,res,next);
+}
 
-router.patch('/:userId', (req, res, next) => {
-    res.status(200).json({
-        message: 'Update user'
-    });
-});
+function createUser(req, res, next){
+    userService.createUser(req,res,next);
+}
 
-router.delete('/:userId', (req, res, next) => {
-    res.status(200).json({
-        message: 'Delete user'
-    });
-});
+function getUser(req, res, next){
+    userService.getUser(req,res,next);
+}
+
+function updateUser(req, res, next){
+    userService.updateUser(req,res,next);
+}
+
+function deleteUser(req, res, next){
+    userService.deleteUser(req,res,next);
+}
 
 module.exports = router;
