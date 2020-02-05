@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require("crypto");
 
 const User = require('../models/users');
 const config = require('../../config');
@@ -35,12 +36,14 @@ exports.signup = (req, res, next) => {
                 error: err
             })
         } else {
+            let activation_token = crypto.randomBytes(20).toString('hex');
             const user = new User({
                 _id: new mongoose.Types.ObjectId(),
                 last_name: req.body.last_name,
                 first_name: req.body.first_name,
                 email: req.body.email,
-                password: hash 
+                password: hash,
+                activation_token: activation_token
             });
             console.log(user);    
             user.save()
@@ -49,7 +52,7 @@ exports.signup = (req, res, next) => {
                     const mailContent = `
                         <h3>Thank you for signing up! Please confirm your account.</h3>
                         <h4>Use the link to confirm account: </h4>
-                        <a href="${config.activateUrl}">${config.activateUrl}</a>
+                        <a href="${config.activateUrl + activation_token}">${config.activateUrl + activation_token}</a>
                         <p>Thank you for using our application!</p>
                     `;
                     emailService.sendMail(req.body, mailContent)
@@ -77,6 +80,37 @@ exports.signup = (req, res, next) => {
 };
 
 exports.activate = (req, res, next) => {
+    User.findOne({activation_token: req.params.token}).exec()
+    .then(user => {
+        if (user) {
+            user.activation_token = '';
+            user.active = true;
+            user.save()
+                .then(result => {
+                    console.log(result);
+                    return res.status(200).json({
+                        message: 'User is activated successfully',
+                        user: user
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    return res.status(500).json({
+                        error: err
+                    });
+                }); 
+        } else {
+            return res.status(404).json({
+                message: 'No valid entry for the provided token'
+            });
+        }
+    })
+    .catch(err => {
+        console.log(err);
+        return res.status(500).json({
+            error: err
+        });
+    });
     return res.status(200).json({
         message: 'Activation successfull'
     });
@@ -102,6 +136,11 @@ exports.login = (req, res, next) => {
         if (user.length < 1) {
             return res.status(401).json({
                 message: 'Login failed. Incorrect email or password.'
+            });
+        }
+        if (!user.activate) {
+            return res.status(401).json({
+                message: 'Login failed. Account not yet activated.'
             });
         }
         bcrypt.compare(req.body.password, user.password, (err, result) => {
