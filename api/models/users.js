@@ -14,6 +14,21 @@ const userSchema = mongoose.Schema({
         type: String, 
         required: true 
     },
+    sex: {
+        type: Number,
+        default: 0
+    },
+    civil_status: {
+        type: String,
+        default: 'N'
+    },
+    address: String,
+    nationality: String,
+    active: {
+        type: Boolean,
+        default: false
+    },
+    activation_token: String,
     create_date: { 
         type: Date, 
         default: Date.now 

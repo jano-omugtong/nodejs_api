@@ -10,6 +10,7 @@ const config = require('../../config');
  * @return [json] user list
  */
 exports.getAllUsers = (req, res, next) => {
+    console.log(req.userData);
     User.find().exec()
     .then(data => {
         console.log(data);
@@ -31,6 +32,8 @@ exports.getAllUsers = (req, res, next) => {
 
 /**
  * Display a listing of the resource.
+ * 
+ * Currently all users can create an account giving it a default password
  *
  * @param  [string] last_name
  * @param  [string] first_name
@@ -99,6 +102,8 @@ exports.getUser = (req, res, next) => {
 
 /**
  * Update the specified resource in storage.
+ * 
+ * Currently all users can update any account.
  *
  * @param  [json] req
  * @param  [int]  $id
@@ -109,7 +114,7 @@ exports.updateUser = (req, res, next) => {
         return res.status(400).json({
             message: "ID and email cannot be edited."
         });
-    }    
+    }
 
     const id = req.params.userId;
     let userUpdate = {};
@@ -132,6 +137,8 @@ exports.updateUser = (req, res, next) => {
 
 /**
  * Remove the specified resource from storage.
+ * 
+ * Currently all users can delete any account.
  *
  * @param  [int]  $id
  * @return [string] message
