@@ -186,6 +186,81 @@ exports.login = (req, res, next) => {
     });
 };
 
+
+/**
+ * Update the specified resource in storage.
+ * 
+ * Currently all users can update any account.
+ *
+ * @param  [json] req
+ * @param  [int]  $id
+ * @return [string] message
+ */
+exports.changePassword = (req, res, next) => {
+    if (req.params.userId !== req.userData.userId) {
+        return res.status(404).json({
+            message: "Unauthorize. Can only change own account."
+        });
+    }
+    if (req.body.password === undefined || req.body.new_password === undefined || req.body.new_password_confirmation === undefined ||
+        req.body.password === "" || req.body.new_password === "" || req.body.new_password_confirmation === "" ||
+        req.body.password === null || req.body.new_password === null || req.body.new_password_confirmation === null){
+        return res.status(400).json({
+            message: "Insufficient data."
+        });
+    }
+    if (req.body.new_password !== req.body.new_password_confirmation) {
+        return res.status(401).json({
+            message: 'New password and confirmation does not match.'
+        }); 
+    }
+    
+    User.findOne({_id: req.params.userId}).exec()
+    .then(user => {
+        if (!user) {
+            return res.status(404).json({
+                message: 'User not found.'
+            });
+        }
+        bcrypt.compare(req.body.password, user.password, (err, res) => {
+            if (err){
+                return res.status(401).json({
+                    message: 'Incorrect old password.'
+                });
+            } 
+            if (res) {
+                bcrypt.hash(req.body.new_password, 10, (err, hash) => {
+                    if (err) {
+                        return res.status(500).json({
+                            error: err
+                        })
+                    } else {
+                        user.password = hash; 
+                        user.save()
+                            .then(result => {
+                                console.log(result);
+                                return res.status(200).json({
+                                    message: 'Password changed successfully.'
+                                });
+                            })
+                            .catch(err => {
+                                console.log(err);
+                                return res.status(500).json({
+                                    error: err
+                                });
+                            });
+                    }
+                });           
+            }
+        })
+    })
+    .catch(err => {
+        return res.status(500).json({
+            error: 'No valid entry for the provided ID'
+        });
+    });
+};
+
 /**
  * Display a listing of the resource without _id, email, password, last_name
  *
