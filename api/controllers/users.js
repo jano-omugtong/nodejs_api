@@ -10,7 +10,6 @@ const config = require('../../config');
  * @return [json] user list
  */
 exports.getAllUsers = (req, res, next) => {
-    console.log(req);
     User.find().exec()
     .then(data => {
         console.log(data);

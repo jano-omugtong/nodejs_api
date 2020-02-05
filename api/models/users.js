@@ -14,6 +14,11 @@ const userSchema = mongoose.Schema({
         type: String, 
         required: true 
     },
+    active: {
+        type: Boolean,
+        default: false
+    },
+    activation_token: String,
     create_date: { 
         type: Date, 
         default: Date.now 
