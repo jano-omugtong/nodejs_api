@@ -1,11 +1,25 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+const config = require('../../config');
 const User = require('../models/users');
 
 let service = {};
 
 let signup = (req, res, next) => {
+    if (req.body.email === undefined || 
+        req.body.password === undefined || req.body.password_confirmation === undefined ||
+        req.body.password === "" || req.body.password_confirmation === "" ||
+        req.body.password === null || req.body.password_confirmation === null) {
+        return res.status(400).json({
+            message: "Missing required fields: email, password, password_confirmation."
+        });
+    }  
+    if (req.body.password !== req.body.password_confirmation) {
+        return res.status(400).json({
+            error: "Password and Password confiramtion does not match."
+        })
+    }
     bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err) {
             return res.status(500).json({
@@ -39,17 +53,24 @@ let signup = (req, res, next) => {
 };
 
 let login = (req, res, next) => {
+    if (req.body.email === undefined || req.body.email === "" || 
+        req.body.email === null || req.body.password === undefined || 
+        req.body.password === "" || req.body.password === null) {
+        return res.status(400).json({
+            message: "Missing required fields: email, password."
+        });
+    } 
     User.findOne({email: req.body.email}).exec()
     .then(user => {
         if (user.length < 1) {
             return res.status(401).json({
-                message: 'Unauthorize'
+                message: 'Login failed. Incorrect email or password.'
             });
         }
-        bcrypt.compare(req.body.password, user[0].password, (err, result) => {
+        bcrypt.compare(req.body.password, user.password, (err, result) => {
             if (err) {
                 return res.status(401).json({
-                    message: 'Unauthorize'
+                    message: 'Login failed. Incorrect email or password.'
                 });
             }
             if (result) {
@@ -59,7 +80,7 @@ let login = (req, res, next) => {
                 });
             }
             return res.status(401).json({
-                message: 'Unauthorize'
+                message: 'Login failed. Incorrect email or password.'
             });
         })
     })
@@ -92,27 +113,36 @@ let getAllUsers = (req, res, next) => {
 };
 
 let createUser = (req, res, next) => {
-    const user = new User({
-        _id: new mongoose.Types.ObjectId(),
-        last_name: req.body.last_name,
-        first_name: req.body.first_name,
-        email: req.body.email
-    })
-    console.log(user);    
-    user.save()
-        .then(result => {
-            console.log(result);
-            res.status(200).json({
-                message: 'Created successfully',
-                user: user
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.status(500).json({
+    bcrypt.hash(config.defaultPass, 10, (err, hash) => {
+        if (err) {
+            return res.status(500).json({
                 error: err
-            });
-        });
+            })
+        } else {
+            const user = new User({
+                _id: new mongoose.Types.ObjectId(),
+                last_name: req.body.last_name,
+                first_name: req.body.first_name,
+                email: req.body.email,
+                password: hash
+            })
+            console.log(user);    
+            user.save()
+                .then(result => {
+                    console.log(result);
+                    res.status(200).json({
+                        message: 'Created successfully',
+                        user: user
+                    });
+                })
+                .catch(err => {
+                    console.log(err);
+                    res.status(500).json({
+                        error: err
+                    });
+                }); 
+        }
+    });
 };
 
 let getUser = (req, res, next) => {
@@ -137,7 +167,7 @@ let getUser = (req, res, next) => {
 };
 
 let updateUser = (req, res, next) => {
-    if (req.body.email != null){
+    if (req.body.email != null || req.body.id != null){
         return res.status(400).json({
             message: "ID and email cannot be edited."
         });
@@ -157,7 +187,7 @@ let updateUser = (req, res, next) => {
     })
     .catch(err => {
         res.status(500).json({
-            error: err
+            error: 'No valid entry for the provided ID'
         });
     });
 };
@@ -172,7 +202,7 @@ let deleteUser = (req, res, next) => {
     })
     .catch(err => {
         res.status(500).json({
-            error: err
+            error: 'No valid entry for the provided ID'
         });
     });
 };
