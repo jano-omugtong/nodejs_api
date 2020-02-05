@@ -192,8 +192,10 @@ exports.login = (req, res, next) => {
  * 
  * Currently all users can update any account.
  *
- * @param  [json] req
  * @param  [int]  $id
+ * @param  [string] password
+ * @param  [string] new_password
+ * @param  [string] new_password_confirmation
  * @return [string] message
  */
 exports.changePassword = (req, res, next) => {
@@ -222,13 +224,8 @@ exports.changePassword = (req, res, next) => {
                 message: 'User not found.'
             });
         }
-        bcrypt.compare(req.body.password, user.password, (err, res) => {
-            if (err){
-                return res.status(401).json({
-                    message: 'Incorrect old password.'
-                });
-            } 
-            if (res) {
+        bcrypt.compare(req.body.password, user.password).then(function (response){
+            if (response){
                 bcrypt.hash(req.body.new_password, 10, (err, hash) => {
                     if (err) {
                         return res.status(500).json({
@@ -250,9 +247,19 @@ exports.changePassword = (req, res, next) => {
                                 });
                             });
                     }
-                });           
+                });
+            } else {
+                return res.status(401).json({
+                    message: 'Incorrect old password.'
+                });
             }
-        })
+            
+        }), function (err) {
+            return res.status(500).json({
+                message: 'Something went wrong.',
+                error: err
+            });
+        }
     })
     .catch(err => {
         return res.status(500).json({
