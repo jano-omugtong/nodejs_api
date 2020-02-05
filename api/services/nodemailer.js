@@ -3,6 +3,14 @@ const Q = require('q');
 
 const config = require('../../config');
 
+
+/**
+ * Send email
+ *
+ * @param  [req.body] req
+ * @param  [html] mailContent
+ * @return reject or resolve
+ */
 exports.sendMail = (req, mailContent) => {
     let deferred = Q.defer();
 

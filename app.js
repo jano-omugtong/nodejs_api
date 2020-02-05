@@ -1,8 +1,9 @@
 const express = require('express');
-const app = express();
-const morgan = require('morgan'); // for logging routes
+const morgan = require('morgan');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+
+const app = express();
 
 const userRoutes = require('./api/routes/users');
 const authRoutes = require('./api/routes/auth');

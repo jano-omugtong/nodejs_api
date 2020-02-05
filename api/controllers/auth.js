@@ -5,6 +5,16 @@ const User = require('../models/users');
 const config = require('../../config');
 const emailService = require('../services/nodemailer');
 
+/**
+ * Create user
+ *
+ * @param  [string] last_name
+ * @param  [string] first_name
+ * @param  [string] email
+ * @param  [string] password
+ * @param  [string] password_confirmation
+ * @return [string] message
+ */
 exports.signup = (req, res, next) => {
     if (req.body.email === undefined || 
         req.body.password === undefined || req.body.password_confirmation === undefined ||
@@ -72,6 +82,13 @@ exports.activate = (req, res, next) => {
     });
 };
 
+/**
+ * Login user and create token
+ *
+ * @param  [string] email
+ * @param  [string] password
+ * @return [string] message
+ */
 exports.login = (req, res, next) => {
     if (req.body.email === undefined || req.body.email === "" || 
         req.body.email === null || req.body.password === undefined || 

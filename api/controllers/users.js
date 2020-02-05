@@ -1,9 +1,14 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
-const config = require('../../config');
 const User = require('../models/users');
+const config = require('../../config');
 
+/**
+ * Display a listing of the resource.
+ *
+ * @return [json] user list
+ */
 exports.getAllUsers = (req, res, next) => {
     console.log(req);
     User.find().exec()
@@ -25,6 +30,14 @@ exports.getAllUsers = (req, res, next) => {
     })
 };
 
+/**
+ * Display a listing of the resource.
+ *
+ * @param  [string] last_name
+ * @param  [string] first_name
+ * @param  [string] email
+ * @return [string] message
+ */
 exports.createUser = (req, res, next) => {
     bcrypt.hash(config.defaultPass, 10, (err, hash) => {
         if (err) {
@@ -58,6 +71,12 @@ exports.createUser = (req, res, next) => {
     });
 };
 
+/**
+ * Display the specified resource.
+ *
+ * @param  [int]  $id
+ * @return [json] user
+ */
 exports.getUser = (req, res, next) => {
     const id = req.params.userId;
     User.findById(id).exec()
@@ -79,6 +98,13 @@ exports.getUser = (req, res, next) => {
     });
 };
 
+/**
+ * Update the specified resource in storage.
+ *
+ * @param  [json] req
+ * @param  [int]  $id
+ * @return [string] message
+ */
 exports.updateUser = (req, res, next) => {
     if (req.body.email != null || req.body.id != null){
         return res.status(400).json({
@@ -105,6 +131,12 @@ exports.updateUser = (req, res, next) => {
     });
 };
 
+/**
+ * Remove the specified resource from storage.
+ *
+ * @param  [int]  $id
+ * @return [string] message
+ */
 exports.deleteUser = (req, res, next) => {
     const id = req.params.userId;
     User.remove({_id: id}).exec()
