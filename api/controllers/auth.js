@@ -6,6 +6,18 @@ const User = require('../models/users');
 const config = require('../../config');
 const emailService = require('../services/nodemailer');
 
+const credentials = {
+    client: {
+      id: '555',
+      secret: 'sikreto'
+    },
+    auth: {
+      tokenHost: 'https://api.oauth.com'
+    }
+  };
+
+  const oauth2 = require('simple-oauth2').create(credentials);
+
 /**
  * Create user
  *
@@ -138,7 +150,7 @@ exports.login = (req, res, next) => {
                 message: 'Login failed. Incorrect email or password.'
             });
         }
-        if (!user.activate) {
+        if (!user.active) {
             return res.status(401).json({
                 message: 'Login failed. Account not yet activated.'
             });
@@ -150,10 +162,28 @@ exports.login = (req, res, next) => {
                 });
             }
             if (result) {
-                return res.status(200).json({
-                    message: 'Login successfully',
-                    user: user
-                });
+
+                const tokenConfig = {
+                    username: user.email,
+                    password: user.password,
+                    scope: '<scope>',
+                  };
+                 
+                  run(tokenConfig).then( function(response){
+                      if (response) {
+                        return res.status(200).json({
+                            message: 'Login successfully',
+                            user: user
+                        });
+                      } else {
+                        return res.status(500).json({
+                            message: 'token error',
+                            user: user
+                        });
+                      }
+                  });
+                    
+                
             }
             return res.status(401).json({
                 message: 'Login failed. Incorrect email or password.'
@@ -167,3 +197,13 @@ exports.login = (req, res, next) => {
         });
     });
 };
+
+async function run(tokenConfig) {
+   
+    try {
+      const result = await oauth2.ownerPassword.getToken(tokenConfig);
+      const accessToken = oauth2.accessToken.create(result);
+    } catch (error) {
+      console.log('Access Token Error', error.message);
+    }
+  }
