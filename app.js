@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 const userRoutes = require('./api/routes/users');
+const authRoutes = require('./api/routes/auth');
 
 mongoose.connect('mongodb://localhost/nodejs_api');
 
@@ -27,6 +28,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/users', userRoutes);
+app.use('/auth', authRoutes);
 
 app.use((req, res, next) => {
     const error = new Error('Not found');

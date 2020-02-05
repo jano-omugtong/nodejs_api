@@ -5,6 +5,7 @@ const config = require('../../config');
 const User = require('../models/users');
 
 exports.getAllUsers = (req, res, next) => {
+    console.log(req);
     User.find().exec()
     .then(data => {
         console.log(data);

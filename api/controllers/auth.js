@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const User = require('../models/users');
+const config = require('../../config');
+const emailService = require('../services/nodemailer');
 
 exports.signup = (req, res, next) => {
     if (req.body.email === undefined || 
@@ -34,9 +36,24 @@ exports.signup = (req, res, next) => {
             user.save()
                 .then(result => {
                     console.log(result);
-                    return res.status(200).json({
-                        message: 'Created successfully',
-                        user: user
+                    const mailContent = `
+                        <h3>Thank you for signing up! Please confirm your account.</h3>
+                        <h4>Use the link to confirm account: </h4>
+                        <a href="${config.activateUrl}">${config.activateUrl}</a>
+                        <p>Thank you for using our application!</p>
+                    `;
+                    emailService.sendMail(req.body, mailContent)
+                    .then(emailResult => {
+                        return res.status(200).json({
+                            message: 'Created successfully. An email is sent to your email address.',
+                            user: user
+                        });
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        return res.status(500).json({
+                            error: err
+                        });    
                     });
                 })
                 .catch(err => {
@@ -46,6 +63,12 @@ exports.signup = (req, res, next) => {
                     });
                 });
         }
+    });
+};
+
+exports.activate = (req, res, next) => {
+    return res.status(200).json({
+        message: 'Activation successfull'
     });
 };
 
