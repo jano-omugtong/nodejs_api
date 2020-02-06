@@ -70,3 +70,24 @@ post auth/changepass/:userId '*'
 } 
 * this patch request doesn't need all fields to be placed, only the mentioned fields will be updated, everything else remains as is  
 #### delete users/:userId '*'  
+  
+### Basis for sex and civil_status inputs
+
+#### sex:  
+    The four codes specified in ISO/IEC 5218 are:  
+        0 = Not known,  
+        1 = male,  
+        2 = female,  
+        9 = not Applicable.  
+https://en.wikipedia.org/wiki/ISO/IEC_5218  
+          
+ #### civil_status:  
+     An indicator to identify the legal marital status of a PERSON.  
+    National Codes:  
+        S	Single  
+        M	Married/Civil Partner  
+        D	Divorced/Person whose Civil Partnership has been dissolved  
+        W	Widowed/Surviving Civil Partner  
+        P	Separated  
+        N	Not disclosed  
+(https://www.datadictionary.nhs.uk/data_dictionary/attributes/p/person/person_marital_status_de.asp?shownav=1)  
