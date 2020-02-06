@@ -38,6 +38,10 @@ exports.getAllUsers = (req, res, next) => {
  * @param  [string] last_name
  * @param  [string] first_name
  * @param  [string] email
+ * @param  [int] sex
+ * @param  [char] civil_status
+ * @param  [string] address
+ * @param  [string] nationality
  * @return [string] message
  */
 exports.createUser = (req, res, next) => {
@@ -52,7 +56,11 @@ exports.createUser = (req, res, next) => {
                 last_name: req.body.last_name,
                 first_name: req.body.first_name,
                 email: req.body.email,
-                password: hash
+                password: hash,
+                sex: req.body.sex,
+                civil_status: req.body.civil_status,
+                address: req.body.address,
+                nationality: req.body.nationality
             })
             console.log(user);    
             user.save()

@@ -15,6 +15,10 @@ const emailService = require('../services/nodemailer');
  * @param  [string] email
  * @param  [string] password
  * @param  [string] password_confirmation
+ * @param  [int] sex
+ * @param  [char] civil_status
+ * @param  [string] address
+ * @param  [string] nationality
  * @return [string] message
  */
 exports.signup = (req, res, next) => {
@@ -44,7 +48,11 @@ exports.signup = (req, res, next) => {
                 first_name: req.body.first_name,
                 email: req.body.email,
                 password: hash,
-                activation_token: activation_token
+                activation_token: activation_token,
+                sex: req.body.sex,
+                civil_status: req.body.civil_status,
+                address: req.body.address,
+                nationality: req.body.nationality
             });
             console.log(user);    
             user.save()
